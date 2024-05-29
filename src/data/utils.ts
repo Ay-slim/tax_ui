@@ -24,7 +24,6 @@ export async function sendFetchRequest(endpoint: string, method: string, body: a
       body: JSON.stringify(body),
     }
   }
-  console.log(method, bodyVal, 'METHOD AND BODY VALLL')
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_SERVER_URL}${endpoint}${queryParams}`, {
     method,
     headers: {
@@ -33,7 +32,6 @@ export async function sendFetchRequest(endpoint: string, method: string, body: a
     ...bodyVal,
   });
   const res_val = await res.json();
-  console.log(res_val, res, 'RESPONSESSSSRAWWWW')
   return res_val;
 }
 
