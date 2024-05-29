@@ -1,3 +1,5 @@
+"use client"
+
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { styles } from "../styles";
@@ -143,7 +145,7 @@ const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: 
                   </div>
                 </div>
                 <div className="w-full text-center mt-5 flex justify-center item-center text-[14px]">
-                  <button type="submit" className="flex w-2/6 h-3/6 justify-center gap-2 items-center relative cursor-pointer text-black bg-gray-400 hover:bg-sky-700 rounded-sm">
+                  <button type="submit" className="flex w-2/6 justify-center gap-2 items-center relative cursor-pointer text-black bg-gray-400 hover:bg-sky-700 rounded-sm">
                     {"Submit"}
                   </button>
                 </div>
