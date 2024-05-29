@@ -8,6 +8,7 @@ export type DashboardData = {
       current_tax_index: number,
       current_tax_bracket: string,
       country: string,
+      country_id: string,
   },
   deductions: {
           _id: string,
@@ -31,6 +32,18 @@ export const fileIncome = async (fileIncomeReq: {
   return sendFetchRequest('deduction', 'POST', fileIncomeReq);
 }
 
-export const fetchDashboardData = async (dashboardReq: {user_id: string, year: number}) => {
-  return sendFetchRequest('user/dashboard', 'GET', dashboardReq);
+export const fetchDashboardData = async (reqBody: {user_id: string, year: number}) => {
+  return sendFetchRequest('user/dashboard', 'GET', reqBody);
+}
+
+export const signUp = async (reqBody: {name: string, email: string, password: string, country_id: string, year: number}) => {
+  return sendFetchRequest('user', 'POST', reqBody);
+}
+
+export const login = async (reqBody: {email: string, password: string}) => {
+  return sendFetchRequest('user/login', 'POST', reqBody);
+}
+
+export const fetchCountries = async () => {
+  return sendFetchRequest('user/countries', 'GET', {});
 }
