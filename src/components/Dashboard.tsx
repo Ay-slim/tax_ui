@@ -1,24 +1,29 @@
+"use client"
+
 import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import FileIncome from "./FileIncome";
 import { DashboardData, fetchDashboardData } from "@/data/api_calls";
 import { formatDate2 } from "@/data/utils";
 import { styles } from "@/styles";
+import { useSession } from "next-auth/react";
 
-const Dashboard = ({user_id}: {user_id: string}) => {
+const Dashboard = () => {
   const [clickedNew, setClickedNew] = useState<boolean>(false);
   const [dashboardData, setDashboardData] = useState<DashboardData>();
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
-  const [currentCountry, setCurrentCountry] = useState<string>(dashboardData ? dashboardData?.summary?.country : "")
+  const [currentCountry, setCurrentCountry] = useState<string>(dashboardData ? dashboardData?.summary?.country : "");
+  const { data: session } = useSession();
+  console.log(session, 'SESSSIONNNNN')
   // console.log(dashboardData, 'DASHHHHHHHHHH')
   useEffect(() => {
     async function dashboardUseEffect() {
-      setDashboardData(await fetchDashboardData({user_id, year: currentYear}))
+      setDashboardData(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}))
     }
     dashboardUseEffect()
   }, [clickedNew, currentYear])
   return (
-    <>{clickedNew ? (<FileIncome user_id={user_id} country_id="66569f492b399320e74304a4" setClickedNew={setClickedNew} />) :
+    <>{clickedNew ? (<FileIncome user_id={session?.user?._id} country_id={dashboardData?.summary?.country_id as string} setClickedNew={setClickedNew} />) :
     (<main className="flex min-h-screen flex-col items-center">
       <div className="flex w-full h-28 items-center justify-center">
         <h1 className="text-7xl"><strong>Taxify</strong></h1>
@@ -53,12 +58,12 @@ const Dashboard = ({user_id}: {user_id: string}) => {
             <select
               name="country"
               id="country"
-              value={currentCountry}
+              value={dashboardData?.summary?.country}
               onChange={(e) => setCurrentCountry(e.target.value)}
                 className="w-5/6 text-[14px] border rounded h-[34px] text-black px-2 outline-none mt-[4px]"
               >
-              <option value={currentYear} className="">
-                  {`Nigeria`}
+              <option value={dashboardData?.summary?.country} className="">
+                  {dashboardData?.summary?.country}
               </option>
               {[].map((option: any, idx: number) => (
                 <option key={idx} value={option}>
@@ -126,7 +131,7 @@ const Dashboard = ({user_id}: {user_id: string}) => {
                   </thead>
                   <tbody className="text-sm">
                     {dashboardData &&
-                    dashboardData?.deductions?.length !== null ? (
+                    dashboardData?.deductions?.length ? (
                       dashboardData?.deductions?.map(
                         (dashboardRow, index) => (
                           <tr
@@ -155,13 +160,13 @@ const Dashboard = ({user_id}: {user_id: string}) => {
                               className="text-center"
                               title="income"
                             >
-                              {dashboardRow?.income?.toLocaleString()}
+                              {dashboardRow && dashboardRow?.income ? dashboardRow?.income?.toLocaleString() : 0}
                             </td>
                             <td
                               className="text-center"
                               title="tax"
                             >
-                              {dashboardRow?.tax?.toLocaleString()}
+                              {dashboardRow && dashboardRow?.tax ? dashboardRow?.tax?.toLocaleString() : 0}
                             </td>
                           </tr>
                         )
@@ -170,7 +175,7 @@ const Dashboard = ({user_id}: {user_id: string}) => {
                       <tr>
                         <td className="border-y text-center py-2" colSpan={12}>
                           <span className="text-red-500 font-extrabold">
-                            No filed income yet
+                            {`You haven't filed any income yet. Click file new income to get started.`}
                           </span>
                         </td>
                       </tr>
