@@ -73,13 +73,13 @@ const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: 
         <h1 className="text-[20px] text-center font-bold">
           File New Income
         </h1>
+        <div className="relative mt-6 mx-[10px] sm:mx-auto sm:w-full sm:max-w-md">
         <button
         onClick={() => props.setClickedNew(false)}
         className="absolute top-0 right-0 mt-4 mr-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
       >
         Cancel
       </button>
-        <div className="mt-6 mx-[10px] sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-5 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="mt-6 mx-[10px] sm:mx-auto sm:w-full sm:max-w-md">
               <form className="space-y-4" onSubmit={handleSubmit}>
@@ -145,7 +145,7 @@ const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: 
                   </div>
                 </div>
                 <div className="w-full text-center mt-5 flex justify-center item-center text-[14px]">
-                  <button type="submit" className="flex w-2/6 justify-center gap-2 items-center relative cursor-pointer text-black bg-gray-400 hover:bg-sky-700 rounded-sm">
+                  <button type="submit" className="flex w-2/6 justify-center gap-2 items-center relative cursor-pointer text-black bg-green-400 h-10 hover:bg-sky-700 rounded-sm">
                     {"Submit"}
                   </button>
                 </div>
