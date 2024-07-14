@@ -28,7 +28,7 @@ const Dashboard = () => {
       <div className="flex w-full h-28 items-center justify-center">
         <h1 className="text-7xl"><strong>Taxify</strong></h1>
       </div>
-      <div className="flex w-full h-28">
+      <div className="flex w-full h-28 m-2">
         <div className="flex w-full h-30">
           <div className="flex flex-col justify-center w-full h-full">
             <label htmlFor="year" className="text-[14.4px]">
@@ -74,7 +74,7 @@ const Dashboard = () => {
             {/* {`Country: ${dashboardData ? dashboardData?.summary?.country : ""}`} */}
           </div>
         </div>
-        <div className="w-full h-30 flex flex-col hover:bg-sky-700 bg-gray-600 rounded-sm">
+        <div className="w-full h-30 flex flex-col hover:bg-sky-700 bg-green-600 rounded-sm">
           <div className="h-1/6 flex items-center justify-center">File new income</div>
           <div className="h-5/6">
             <button className="w-full h-full" onClick={() => {setClickedNew(true)}}>
@@ -83,16 +83,16 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col border-2 w-full h-40 mt-5">
+      <div className="flex flex-col w-full h-40 mt-5">
         <p className="h-1/6 text-xl"><strong>{`Your ${currentYear} summary:`} </strong></p>
-        <div className="flex flex-row h-5/6">
-          <div className="w-1/2 flex justify-center items-center h-full">{"Total filed income"} <strong><p>{`:  ${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0}`}</p></strong></div>
-          <div className="w-1/2 flex justify-center items-center h-full">{"Total tax due"} <strong><p>{`:  ${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0}`}</p></strong></div>
-          <div className="w-1/2 flex justify-center items-center h-full">{"Current tax bracket"} <strong><p>{`:  ${dashboardData?.summary?.current_tax_bracket || ""}`}</p></strong></div>
+        <div className="flex flex-row h-5/6 gap-2 m-2">
+          <div className="w-1/2 flex justify-center items-center h-full bg-gray-800">{"Total filed income"} <strong><p>{`:  ${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0}`}</p></strong></div>
+          <div className="w-1/2 flex justify-center items-center h-full bg-gray-800">{"Total tax due"} <strong><p>{`:  ${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0}`}</p></strong></div>
+          <div className="w-1/2 flex justify-center items-center h-full bg-gray-800">{"Current tax bracket"} <strong><p>{`:  ${dashboardData?.summary?.current_tax_bracket || ""}`}</p></strong></div>
         </div>
         {/* {dashboardData?.summary.total_taxed_income} */}
       </div>
-      <div className="flex flex-col border-2 w-full h-80 mt-5">
+      <div className="flex flex-col w-full h-80 mt-5">
         <p className="h-1/6 text-xl"><strong>{`History:`} </strong></p>
         <div className="flex flex-row">
         <div className="overflow-auto bg-white rounded-sm shadow-sm w-full">
