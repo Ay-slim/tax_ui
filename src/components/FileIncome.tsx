@@ -2,11 +2,11 @@
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { styles } from "../styles";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { fileIncome } from "@/data/api_calls";
-import { yearsArray } from "@/data/utils";
+import { Card, Input, Space } from "antd";
+import { FaTimes } from "react-icons/fa";
 
 const schema = Yup.object().shape({
   amount: Yup.string().required("Amount to file is required"),
@@ -14,36 +14,35 @@ const schema = Yup.object().shape({
 });
 
 const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: any}) => {
-  const currentYear = new Date().getFullYear();
-  const [isSuccess, setIsSucces] = useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
   const formik = useFormik({
     initialValues: {
-      amount: 0,
+      amount: "",
       description: "",
-      year: currentYear,
+      date: "",
     },
     validationSchema: schema,
     onSubmit: async ({
       amount,
       description,
-      year,
+      date
     }) => {
       try{
         // console.log(values, 'VALUESSS');
         // console.log(amount, description, year, 'AMONEIFEEDE')
-        const filedIncome = await fileIncome({
+        await fileIncome({
           user_id: props.user_id,
-          income: amount,
+          income: Number(amount),
           description,
-          year,
+          date,
           country_id: props.country_id,
         });
         // console.log(filedIncome, 'FILED INCOMEEEE');
-        setIsSucces(true);
+        setIsSuccess(true);
         // console.log('BEFORE SET NEW')
-        props.setClickedNew();
+        props.setClickedNew(false);
         // console.log('AFTER SET NEW')
       } catch (err) {
         setError(true);
@@ -53,7 +52,7 @@ const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: 
 
   useEffect(() => {
     if (isSuccess) {
-      const message = `$Something` || "Successful!";
+      const message = "Income filed";
       toast.success(message, { duration: 5000 });
       //   refetch();
       formik.resetForm();
@@ -64,7 +63,7 @@ const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: 
     }
   }, [isSuccess, error]);
 
-  const { errors, touched, values, setFieldValue, handleChange, handleSubmit } =
+  const { values, handleSubmit } =
     formik;
 
   return (
@@ -74,85 +73,65 @@ const FileIncome = (props: {user_id: string, country_id: string, setClickedNew: 
           File New Income
         </h1>
         <div className="relative mt-6 mx-[10px] sm:mx-auto sm:w-full sm:max-w-md">
-        <button
-        onClick={() => props.setClickedNew(false)}
-        className="absolute top-0 right-0 mt-4 mr-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
-      >
-        Cancel
-      </button>
-          <div className="bg-white py-5 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="mt-6 mx-[10px] sm:mx-auto sm:w-full sm:max-w-md">
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                <div>
-                  <label htmlFor="description" className="text-[14.4px] text-black">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    id="description"
+          
+          <Card bordered={false} style={{width: 400, paddingBottom: 5}}>
+          
+          {/* <FaTimes
+            className="close-icon text-red-600 cursor-pointer absolute top-0 right-5 mt-4 mr-4 hover:bg-red-300"
+            onClick={() => props.setClickedNew(false)}
+          /> */}
+          <button
+          onClick={() => props.setClickedNew(false)}
+          className="absolute top-0 right-0 mt-4 mr-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
+          >
+            Cancel
+          </button>
+            <div className="mt-4 flex flex-col items-center justify-center">
+              <Space direction="vertical">
+                <div className="w-full">
+                  <span className="text-[12px]">Description:</span>
+                  <Input
+                    style={{ backgroundColor: "rgba(255, 255, 255, 0.75)" }}
+                    className="h-[45px] text-[12px] shadow-md"
                     value={values.description}
-                    onChange={handleChange}
-                    className="w-full text-[14px] border rounded h-[34px] text-black px-2 outline-none mt-[4px]"
-                    placeholder="Enter description"
+                    placeholder="Income description"
+                    onChange={(e) => formik.setFieldValue("description", e.target.value)}
                   />
-                  {errors.description && touched.description && (
-                    <span className="text-red-500 pt-2 block fade-in">
-                      {errors.description}
-                    </span>
-                  )}
                 </div>
-
-                <div>
-                  <label htmlFor="amount" className={`${styles.label}`}>
-                    Amount
-                  </label>
-                  <input
-                    type="number"
-                    id="amount"
-                    value={values.amount}
-                    onChange={handleChange}
-                    className={`${styles.input}`}
-                    placeholder="Enter amount"
+                <div className="w-full">
+                  <span className="text-[12px]">Amount:</span>
+                  <Input
+                    style={{ backgroundColor: "rgba(255, 255, 255, 0.75)" }}
+                    className="h-[45px] text-[12px] shadow-md"
+                    value={values.amount?.toLocaleString()}
+                    placeholder="Income amount"
+                    onChange={(e) => formik.setFieldValue("amount", Number(e.target.value.replace(/,/g, "")))}
                   />
-                  {errors.amount && touched.amount && (
-                    <span className="text-red-500 pt-2 block fade-in">
-                      {errors.amount}
-                    </span>
-                  )}
                 </div>
-
-                <div>
-                  <label htmlFor="bank" className={`${styles.label}`}>
-                    Select Year
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      name="year"
-                      id="year"
-                      value={values.year}
-                      onChange={handleChange}
-                      className={`${styles.input}`}
-                    >
-                      <option value={values.year} className="">
-                        {values.year}
-                      </option>
-                      {yearsArray(currentYear).filter(yearVal => yearVal !== values.year)?.map((option: any, idx: number) => (
-                        <option key={idx} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="w-full">
+                  <span className="text-[12px]">Date:</span>
+                  <Input
+                    type="date"
+                    style={{ backgroundColor: "rgba(255, 255, 255, 0.75)" }}
+                    className="h-[45px] text-[12px] shadow-md"
+                    value={values.date}
+                    placeholder="Income amount"
+                    onChange={(e) => formik.setFieldValue("date", e.target.value)}
+                  />
                 </div>
-                <div className="w-full text-center mt-5 flex justify-center item-center text-[14px]">
-                  <button type="submit" className="flex w-2/6 justify-center gap-2 items-center relative cursor-pointer text-black bg-green-400 h-10 hover:bg-sky-700 rounded-sm">
-                    {"Submit"}
-                  </button>
-                </div>
-                <br />
-              </form>
+                <button
+                  type="submit"
+                  className="mt-2 bg-gray-100 h-[45px] space-x-2 w-full shadow-md flex items-center justify-center hover:bg-blue-100 transform transition duration-300 hover:scale-105"
+                  disabled={formik.isSubmitting}
+                  onClick={() => formik.handleSubmit()}
+                >
+                <span className="text-blue-900 font-bold text-[16px]">
+                  {formik.isSubmitting ? "Submitting..." : "Submit"}
+                </span>
+              </button>
+              </Space>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </>
