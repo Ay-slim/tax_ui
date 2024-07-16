@@ -66,7 +66,6 @@ const Signup = () => {
                       password,
                       redirect: false,
                     });
-                    console.log(res, 'RESSSSSSS', email, password)
                     if(res?.error) {
                       setError(true);
                       return;
