@@ -3,30 +3,43 @@
 import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import FileIncome from "./FileIncome";
-import { DashboardData, fetchDashboardData } from "@/data/api_calls";
+import { DashboardData, fetchCountryBrackets, fetchDashboardData } from "@/data/api_calls";
 import { formatDate2 } from "@/data/utils";
 import { styles } from "@/styles";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import SummaryCard from "./SummaryCard";
+import { BsInfoCircleFill } from "react-icons/bs";
+import Brackets from "./Brackets";
 
 const Dashboard = () => {
   const [clickedNew, setClickedNew] = useState<boolean>(false);
   const [dashboardData, setDashboardData] = useState<DashboardData>();
+  const [brackets, setBrackets] = useState<string[]>([]);
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [currentCountry, setCurrentCountry] = useState<string>(dashboardData ? dashboardData?.summary?.country : "");
   const { data: session } = useSession();
-  console.log(session, 'SESSSIONNNNN')
   // console.log(dashboardData, 'DASHHHHHHHHHH')
   useEffect(() => {
+    if (!session) signOut({callbackUrl: "/login"})
     async function dashboardUseEffect() {
-      setDashboardData(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}))
+      setDashboardData(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}));
+      // console.log(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}), 'DASHHHHHH')
     }
     dashboardUseEffect()
   }, [clickedNew, currentYear])
   return (
     <>{clickedNew ? (<FileIncome user_id={session?.user?._id} country_id={dashboardData?.summary?.country_id as string} setClickedNew={setClickedNew} />) :
-    (<main className="flex min-h-screen flex-col items-center">
+    (<main className="flex min-h-screen flex-col items-center mx-5">
+      {brackets && brackets.length && <Brackets name={dashboardData?.summary?.country!} brackets={brackets} setBrackets={setBrackets} />}
       <div className="flex w-full h-28 items-center justify-center">
         <h1 className="text-7xl"><strong>Taxify</strong></h1>
+      <button
+        type="button"
+        className="mt-2 ml-auto rounded bg-gray-100 h-[30px] space-x-2 w-20 shadow-md flex items-center justify-center text-black hover:bg-blue-100 transform transition duration-300 hover:scale-105"
+        onClick={() => {
+          signOut({callbackUrl: "/login"});
+        }}
+      >Logout</button>
       </div>
       <div className="flex w-full h-28 m-2">
         <div className="flex w-full h-30">
@@ -84,11 +97,17 @@ const Dashboard = () => {
         </div>
       </div>
       <div className="flex flex-col w-full h-40 mt-5">
-        <p className="h-1/6 text-xl"><strong>{`Your ${currentYear} summary:`} </strong></p>
+        <div className="flex">
+          <p className="h-1/6 text-xl"><strong>{`Your ${currentYear} summary:`} </strong></p>
+          <BsInfoCircleFill className="ml-auto cursor-pointer" onClick={async() => {
+            const bracketsInfo = await fetchCountryBrackets({_id: dashboardData?.summary.country_id!});
+            setBrackets(bracketsInfo);
+          }}/>
+        </div>
         <div className="flex flex-row h-5/6 gap-2 m-2">
-          <div className="w-1/2 flex justify-center items-center h-full bg-gray-800">{"Total filed income"} <strong><p>{`:  ${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0}`}</p></strong></div>
-          <div className="w-1/2 flex justify-center items-center h-full bg-gray-800">{"Total tax due"} <strong><p>{`:  ${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0}`}</p></strong></div>
-          <div className="w-1/2 flex justify-center items-center h-full bg-gray-800">{"Current tax bracket"} <strong><p>{`:  ${dashboardData?.summary?.current_tax_bracket || ""}`}</p></strong></div>
+          <SummaryCard title={"Total filed income"} value={`${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
+          <SummaryCard title={"Total tax due"} value={`${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
+          <SummaryCard title={"Current tax bracket"} value={`${dashboardData?.summary?.current_tax_bracket || "N/A"}`}/>
         </div>
         {/* {dashboardData?.summary.total_taxed_income} */}
       </div>
@@ -98,7 +117,7 @@ const Dashboard = () => {
         <div className="overflow-auto bg-white rounded-sm shadow-sm w-full">
               <div className="overflow-auto">
                 <table className="table-auto w-full bg-white text-black">
-                  <thead className="sticky -top-1 text-[14.4px] z-[9] bg-gray-200">
+                  <thead className="sticky -top-1 text-[14.4px] bg-gray-200">
                     <tr className="">
                       <th className={`min-w-[50px]`}>No.</th>
                       <th
@@ -117,14 +136,14 @@ const Dashboard = () => {
                         className={`${styles.wide_tb_th}border-x-2 border-x-gray-300`}
                       >
                         <span className={`${styles.sort_span} !block`}>
-                          Income
+                          {`Income (${dashboardData?.summary?.currency})`}
                         </span>
                       </th>
                       <th
                         className={`${styles.wide_tb_th} border-x-2 border-x-gray-300`}
                       >
                         <span className={`${styles.sort_span} !block`}>
-                          Tax
+                          {`Tax (${dashboardData?.summary?.currency})`}
                         </span>
                       </th>
                     </tr>
@@ -145,10 +164,10 @@ const Dashboard = () => {
                             </td>
                             <td
                               className="text-center"
-                              title={formatDate2(String(dashboardRow?.created_at))}
+                              title={formatDate2(String(dashboardRow?.date))}
                             >
                               {dashboardRow?.created_at &&
-                                formatDate2(String(dashboardRow?.created_at))}
+                                formatDate2(String(dashboardRow?.date))}
                             </td>
                             <td
                               className="text-center truncate-25"
