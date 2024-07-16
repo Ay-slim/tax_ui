@@ -25,7 +25,7 @@ const Signup = () => {
               TAXIFY
             </span>
             <span className="text-[9px] italic">
-              Signup
+              Signin
             </span>
           </div>
           <div className="mt-4 flex flex-col items-center justify-center">

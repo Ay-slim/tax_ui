@@ -35,9 +35,7 @@ const Signup = () => {
 
     try {
       await signUp({name, email, password, country_id: countryId, year: new Date().getFullYear()})
-        const form = e.target;
-        form.reset();
-        router.push("/");
+      router.push("/");
     } catch (error) {
       setError("Something went wromg");
       console.log("Error during registration: ", error);
