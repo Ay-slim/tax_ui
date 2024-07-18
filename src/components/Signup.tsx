@@ -1,7 +1,7 @@
 "use client"
 
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import { Input, Space, Card } from "antd";
+import { Input, Space, Card, InputNumber } from "antd";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchCountries, signUp } from "@/data/api_calls";
@@ -13,9 +13,11 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [countryId, setCountryId] = useState("");
-  console.log(countryId, 'COUNTRY IDDDD')
+  // console.log(countryId, 'COUNTRY IDDDD')
   const [error, setError] = useState("");
   const [countries, setCountries] = useState<{name: string, _id: string}[]>([]);
+  const [isPensioner, setIsPensioner] = useState("");
+  const [pensionPercentage, setPensionPercentage] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -34,7 +36,14 @@ const Signup = () => {
     }
 
     try {
-      await signUp({name, email, password, country_id: countryId, year: new Date().getFullYear()})
+      await signUp({
+        name,
+        email,
+        password,
+        country_id: countryId,
+        year: new Date().getFullYear(),
+        pension_contribution_percent: pensionPercentage,
+      })
       router.push("/");
     } catch (error) {
       setError("Something went wromg");
@@ -78,25 +87,59 @@ const Signup = () => {
                   onChange={(e) => setName(e.target.value)}
                 />
               </div>
-          <label htmlFor="email" className="mt-2 text-[12px]">
-            Country:
-          </label>
-          <select
-            name="country"
-            id="country"
-            value={countryId}
-            onChange={(e) => setCountryId(e.target.value)}
-            className={`${styles.input}`}
-          >
-            <option value={countryId} className="">
-              {countries.filter(country => country._id === countryId)?.[0]?.name || "--------"}
-            </option>
-            {countries?.map((option: any, idx: number) => (
-              <option key={idx} value={option._id}>
-                {option.name}
-              </option>
-            ))}
-          </select>
+              <label htmlFor="email" className="mt-2 text-[12px]">
+                Country:
+              </label>
+              <select
+                name="country"
+                id="country"
+                value={countryId}
+                onChange={(e) => setCountryId(e.target.value)}
+                className={`${styles.input}`}
+              >
+                <option value={countryId} className="">
+                  {countries.filter(country => country._id === countryId)?.[0]?.name || "--------"}
+                </option>
+                {countries?.map((option: any, idx: number) => (
+                  <option key={idx} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="pensiondd" className="mt-2 text-[12px]">
+                Do you make pension contributions?
+              </label>
+              <select
+                name="pensiondd"
+                id="pensiondd"
+                value={isPensioner}
+                onChange={(e) => {
+                  if(e.target.value === "no") setPensionPercentage(0);
+                  setIsPensioner(e.target.value);
+                }}
+                className={`${styles.input}`}
+              >
+                <option value={isPensioner} className="">
+                  {isPensioner || "--------"}
+                </option>
+                {["yes", "no"]?.map((option: string, idx: number) => (
+                  <option key={idx} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {isPensioner === "yes" && (<div className="mt-2">
+                <span className="text-[12px]">Pension contribution percentage:</span>
+                <InputNumber
+                  style={{ backgroundColor: "rgba(255, 255, 255, 0.75)" }}
+                  className="text-[12px] shadow-md"
+                  placeholder="Pension %"
+                  min={0}
+                  max={100}
+                  addonAfter={"%"}
+                  onChange={(value) => setPensionPercentage(value as number)}
+                />
+              </div>)}
               <div className="mt-2">
                 <span className="text-[12px]">Password:</span>
                 <Input.Password
