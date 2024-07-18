@@ -11,7 +11,7 @@ export type DashboardData = {
       currency: string,
       country_id: string,
   },
-  deductions: {
+  filings: {
           _id: string,
           user_id: string,
           description: string,
@@ -30,7 +30,7 @@ export const fileIncome = async (fileIncomeReq: {
   date: string,
   country_id: string,
 }) => {
-  return sendFetchRequest('deduction', 'POST', fileIncomeReq);
+  return sendFetchRequest('filing', 'POST', fileIncomeReq);
 }
 
 export const fetchDashboardData = async (reqBody: {user_id: string, year: number}) => {
@@ -41,7 +41,14 @@ export const fetchCountryBrackets = async (reqBody: {_id: string}): Promise<stri
   return sendFetchRequest('country/brackets', 'GET', reqBody);
 }
 
-export const signUp = async (reqBody: {name: string, email: string, password: string, country_id: string, year: number}) => {
+export const signUp = async (reqBody: {
+  name: string,
+  email: string,
+  password: string,
+  country_id: string,
+  year: number,
+  pension_contribution_percent: number
+}) => {
   return sendFetchRequest('user', 'POST', reqBody);
 }
 
