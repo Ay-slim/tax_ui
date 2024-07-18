@@ -150,8 +150,8 @@ const Dashboard = () => {
                   </thead>
                   <tbody className="text-sm">
                     {dashboardData &&
-                    dashboardData?.deductions?.length ? (
-                      dashboardData?.deductions?.map(
+                    dashboardData?.filings?.length ? (
+                      dashboardData?.filings?.map(
                         (dashboardRow, index) => (
                           <tr
                             key={index}
