@@ -1,3 +1,4 @@
+import { ContributionsUnit } from "./types";
 import { sendFetchRequest } from "./utils"
 
 export type DashboardData = {
@@ -47,7 +48,7 @@ export const signUp = async (reqBody: {
   password: string,
   country_id: string,
   year: number,
-  pension_contribution_percent: number
+  contributions: ContributionsUnit[]
 }) => {
   return sendFetchRequest('user', 'POST', reqBody);
 }
