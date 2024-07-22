@@ -7,6 +7,14 @@ import { useRouter } from "next/navigation";
 import { fetchCountries, signUp } from "@/data/api_calls";
 import { styles } from "@/styles";
 import Link from "next/link";
+import { ContributionsType } from "@/data/types";
+import Contribution from "./Contribution";
+
+type CountryType = {
+  name: string;
+  _id: string;
+  possible_contributions: string[];
+};
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -15,15 +23,17 @@ const Signup = () => {
   const [countryId, setCountryId] = useState("");
   // console.log(countryId, 'COUNTRY IDDDD')
   const [error, setError] = useState("");
-  const [countries, setCountries] = useState<{name: string, _id: string}[]>([]);
-  const [isPensioner, setIsPensioner] = useState("");
-  const [pensionPercentage, setPensionPercentage] = useState(0);
+  const [countries, setCountries] = useState<CountryType[]>([]);
+  const [contributions, setContributions] = useState<ContributionsType>({});
 
   useEffect(() => {
-    (async () => {
-      setCountries(await fetchCountries() as {name: string, _id: string}[]);
-    })()
-  }, [])
+    const fetchCountriesResponse = async () => {
+      const countriesResponse = await fetchCountries() as CountryType[];
+      // console.log(countriesResponse, 'countriessss')
+      setCountries(countriesResponse);
+    }
+    if (!countries.length) fetchCountriesResponse();
+  }, [countryId])
 
   const router = useRouter();
 
@@ -42,7 +52,12 @@ const Signup = () => {
         password,
         country_id: countryId,
         year: new Date().getFullYear(),
-        pension_contribution_percent: pensionPercentage,
+        contributions: Object.keys(contributions).map((contribution) => {
+          return {
+            name: contribution,
+            percentage: contributions[contribution].percentage,
+          }
+        }),
       })
       router.push("/");
     } catch (error) {
@@ -106,40 +121,9 @@ const Signup = () => {
                   </option>
                 ))}
               </select>
-              <label htmlFor="pensiondd" className="mt-2 text-[12px]">
-                Do you make pension contributions?
-              </label>
-              <select
-                name="pensiondd"
-                id="pensiondd"
-                value={isPensioner}
-                onChange={(e) => {
-                  if(e.target.value === "no") setPensionPercentage(0);
-                  setIsPensioner(e.target.value);
-                }}
-                className={`${styles.input}`}
-              >
-                <option value={isPensioner} className="">
-                  {isPensioner || "--------"}
-                </option>
-                {["yes", "no"]?.map((option: string, idx: number) => (
-                  <option key={idx} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {isPensioner === "yes" && (<div className="mt-2">
-                <span className="text-[12px]">Pension contribution percentage:</span>
-                <InputNumber
-                  style={{ backgroundColor: "rgba(255, 255, 255, 0.75)" }}
-                  className="text-[12px] shadow-md"
-                  placeholder="Pension %"
-                  min={0}
-                  max={100}
-                  addonAfter={"%"}
-                  onChange={(value) => setPensionPercentage(value as number)}
-                />
-              </div>)}
+              {countryId && countries.filter((country) => country._id === countryId)[0].possible_contributions.map((contrib, idx) => {
+                return (<Contribution key={idx} name={contrib} contributions={contributions} setContributions={setContributions}/>)
+              })}
               <div className="mt-2">
                 <span className="text-[12px]">Password:</span>
                 <Input.Password
