@@ -52,3 +52,9 @@ export const yearsArray = (currentYear: number): number[] => {
   }
   return returnArr;
 }
+
+export const filingCategoryMap: {[key: string]: string} = {
+  regular_income: 'Regular income',
+  capital_gain: 'Capital gain (Profit from sale of chargable assets)',
+  investment_income: 'Investment income (Rental income, dividends etc)',
+};
