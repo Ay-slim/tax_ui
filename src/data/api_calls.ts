@@ -1,35 +1,14 @@
 import { ContributionsUnit } from "./types";
 import { sendFetchRequest } from "./utils"
 
-export type DashboardData = {
-  summary: {
-      user_id: string,
-      total_taxed_income: number,
-      total_deducted_tax: number,
-      current_tax_index: number,
-      current_tax_bracket: string,
-      country: string,
-      currency: string,
-      country_id: string,
-  },
-  filings: {
-          _id: string,
-          user_id: string,
-          description: string,
-          income: number,
-          date: string,
-          tax: number,
-          created_at: Date,
-      }[],
-  years: number[]
-}
-
 export const fileIncome = async (fileIncomeReq: {
   user_id: string,
-  income: number,
+  amount: number,
   description: string,
   date: string,
   country_id: string,
+  category: string,
+  contributions: string[],
 }) => {
   return sendFetchRequest('filing', 'POST', fileIncomeReq);
 }
@@ -59,4 +38,8 @@ export const login = async (reqBody: {email: string, password: string}) => {
 
 export const fetchCountries = async () => {
   return sendFetchRequest('user/countries', 'GET', {});
+}
+
+export const fetchUserContributions = async (reqBody: {user_id: string, country_id: string}): Promise<string[]> => {
+  return sendFetchRequest('user/contributions', 'GET', reqBody);
 }
