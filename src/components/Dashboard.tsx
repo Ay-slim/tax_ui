@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import FileIncome from "./FileIncome";
-import { DashboardData, fetchCountryBrackets, fetchDashboardData } from "@/data/api_calls";
+import { fetchCountryBrackets, fetchDashboardData } from "@/data/api_calls";
 import { formatDate2 } from "@/data/utils";
 import { styles } from "@/styles";
 import { signOut, useSession } from "next-auth/react";
 import SummaryCard from "./SummaryCard";
 import { BsInfoCircleFill } from "react-icons/bs";
 import Brackets from "./Brackets";
+import { DashboardData } from "@/data/types";
 
 const Dashboard = () => {
   const [clickedNew, setClickedNew] = useState<boolean>(false);
@@ -23,14 +24,14 @@ const Dashboard = () => {
     if (!session) signOut({callbackUrl: "/login"})
     async function dashboardUseEffect() {
       setDashboardData(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}));
-      // console.log(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}), 'DASHHHHHH')
+      console.log(await fetchDashboardData({user_id: session?.user?._id, year: currentYear}), 'DASHHHHHH')
     }
     dashboardUseEffect()
   }, [clickedNew, currentYear])
   return (
-    <>{clickedNew ? (<FileIncome user_id={session?.user?._id} country_id={dashboardData?.summary?.country_id as string} setClickedNew={setClickedNew} />) :
+    <>{clickedNew ? (<FileIncome user_id={session?.user?._id} country_id={dashboardData?.summary?.country_id as string} setClickedNew={setClickedNew} />) : 
+    brackets && brackets.length ? (<Brackets name={dashboardData?.summary?.country!} brackets={brackets} setBrackets={setBrackets} />) :
     (<main className="flex min-h-screen flex-col items-center mx-5">
-      {brackets && brackets.length && <Brackets name={dashboardData?.summary?.country!} brackets={brackets} setBrackets={setBrackets} />}
       <div className="flex w-full h-28 items-center justify-center">
         <h1 className="text-7xl"><strong>Taxify</strong></h1>
       <button
@@ -105,7 +106,8 @@ const Dashboard = () => {
           }}/>
         </div>
         <div className="flex flex-row h-5/6 gap-2 m-2">
-          <SummaryCard title={"Total filed income"} value={`${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
+          <SummaryCard title={"Total filed income"} value={`${dashboardData ? dashboardData?.summary?.total_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
+          <SummaryCard title={"Total taxable income"} value={`${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
           <SummaryCard title={"Total tax due"} value={`${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
           <SummaryCard title={"Current tax bracket"} value={`${dashboardData?.summary?.current_tax_bracket || "N/A"}`}/>
         </div>
@@ -136,14 +138,14 @@ const Dashboard = () => {
                         className={`${styles.wide_tb_th}border-x-2 border-x-gray-300`}
                       >
                         <span className={`${styles.sort_span} !block`}>
-                          {`Income (${dashboardData?.summary?.currency})`}
+                          {`Amount (${dashboardData?.summary?.currency})`}
                         </span>
                       </th>
                       <th
                         className={`${styles.wide_tb_th} border-x-2 border-x-gray-300`}
                       >
                         <span className={`${styles.sort_span} !block`}>
-                          {`Tax (${dashboardData?.summary?.currency})`}
+                          Category
                         </span>
                       </th>
                     </tr>
@@ -179,13 +181,13 @@ const Dashboard = () => {
                               className="text-center"
                               title="income"
                             >
-                              {dashboardRow && dashboardRow?.income ? dashboardRow?.income?.toLocaleString() : 0}
+                              {dashboardRow && dashboardRow?.amount ? dashboardRow?.amount?.toLocaleString() : 0}
                             </td>
                             <td
                               className="text-center"
                               title="tax"
                             >
-                              {dashboardRow && dashboardRow?.tax ? dashboardRow?.tax?.toLocaleString() : 0}
+                              {dashboardRow?.category}
                             </td>
                           </tr>
                         )
