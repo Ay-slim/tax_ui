@@ -1,5 +1,5 @@
-type NameAndAmount = {
-  name: string;
+type TaxesAndDeductions = {
+  description: string;
   amount: number;
   reason: string;
 };
@@ -15,8 +15,8 @@ export type DashboardData = {
       country: string,
       currency: string,
       country_id: string,
-      taxes: NameAndAmount[],
-      deductions: NameAndAmount[],
+      taxes: TaxesAndDeductions[],
+      deductions: TaxesAndDeductions[],
   },
   filings: {
           _id: string,
@@ -40,3 +40,16 @@ export type ContributionsType = {
 }
 
 export type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
+
+export type MoreInfoTableDataSource = {
+  key: string;
+  amount: string;
+  reason: string;
+  description: string;
+}
+
+export type MoreInfoTableColumns = {
+  title: string;
+  dataIndex: string;
+  key: string;
+}
