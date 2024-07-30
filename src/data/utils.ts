@@ -1,9 +1,3 @@
-type ResponseStructure = {
-  data: any;
-  error: boolean;
-  stack: any;
-}
-
 export function craftQueryParams(queryParams: {[key: string]: string}) {
   let returnString = '';
   for (let key in queryParams) {
@@ -58,3 +52,16 @@ export const filingCategoryMap: {[key: string]: string} = {
   capital_gain: 'Capital gain (Profit from sale of chargable assets)',
   investment_income: 'Investment income (Rental income, dividends etc)',
 };
+
+export const taxAndDeductionInfoColumns = [
+  {
+    title: 'Reason',
+    dataIndex: 'reason',
+    key: 'reason',
+  },
+  {
+    title: 'Description',
+    dataIndex: 'description',
+    key: 'description',
+  }
+];
