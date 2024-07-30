@@ -3,19 +3,16 @@
 import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import FileIncome from "./FileIncome";
-import { fetchCountryBrackets, fetchDashboardData } from "@/data/api_calls";
-import { formatDate2 } from "@/data/utils";
+import { fetchDashboardData } from "@/data/api_calls";
+import { formatDate2, taxAndDeductionInfoColumns } from "@/data/utils";
 import { styles } from "@/styles";
 import { signOut, useSession } from "next-auth/react";
 import SummaryCard from "./SummaryCard";
-import { BsInfoCircleFill } from "react-icons/bs";
-import Brackets from "./Brackets";
 import { DashboardData } from "@/data/types";
 
 const Dashboard = () => {
   const [clickedNew, setClickedNew] = useState<boolean>(false);
   const [dashboardData, setDashboardData] = useState<DashboardData>();
-  const [brackets, setBrackets] = useState<string[]>([]);
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [currentCountry, setCurrentCountry] = useState<string>(dashboardData ? dashboardData?.summary?.country : "");
   const { data: session } = useSession();
@@ -29,8 +26,7 @@ const Dashboard = () => {
     dashboardUseEffect()
   }, [clickedNew, currentYear])
   return (
-    <>{clickedNew ? (<FileIncome user_id={session?.user?._id} country_id={dashboardData?.summary?.country_id as string} setClickedNew={setClickedNew} />) : 
-    brackets && brackets.length ? (<Brackets name={dashboardData?.summary?.country!} brackets={brackets} setBrackets={setBrackets} />) :
+    <div>{clickedNew ? (<FileIncome user_id={session?.user?._id} country_id={dashboardData?.summary?.country_id as string} setClickedNew={setClickedNew} />) : 
     (<main className="flex min-h-screen flex-col items-center mx-5">
       <div className="flex w-full h-28 items-center justify-center">
         <h1 className="text-7xl"><strong>Taxify</strong></h1>
@@ -100,15 +96,55 @@ const Dashboard = () => {
       <div className="flex flex-col w-full h-40 mt-5">
         <div className="flex">
           <p className="h-1/6 text-xl"><strong>{`Your ${currentYear} summary:`} </strong></p>
-          <BsInfoCircleFill className="ml-auto cursor-pointer" onClick={async() => {
-            const bracketsInfo = await fetchCountryBrackets({_id: dashboardData?.summary.country_id!});
-            setBrackets(bracketsInfo);
-          }}/>
         </div>
         <div className="flex flex-row h-5/6 gap-2 m-2">
-          <SummaryCard title={"Total filed income"} value={`${dashboardData ? dashboardData?.summary?.total_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
-          <SummaryCard title={"Total taxable income"} value={`${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
-          <SummaryCard title={"Total tax due"} value={`${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}/>
+          <SummaryCard title={"Total filed income"} value={`${dashboardData?.summary?.total_income?.toLocaleString() || 0} ${dashboardData?.summary?.currency}`}/>
+          <SummaryCard 
+            title={"Total taxable income"}
+            value={`${dashboardData ? dashboardData?.summary?.total_taxed_income?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}
+            infoText="view deductions"
+            info={{
+              title: "Deductions and Exemptions",
+              dataSource: dashboardData!?.summary?.deductions?.map((ded, idx) => {
+                return {
+                  key: String(idx),
+                  amount: `${ded.amount?.toLocaleString() || 0}`,
+                  reason: ded.reason,
+                  description: ded.description,
+                }
+              }),
+              columns: [
+                {
+                  title: `Amount (${dashboardData?.summary?.currency})`,
+                  dataIndex: 'amount',
+                  key: 'amount',
+                }, ...taxAndDeductionInfoColumns,
+            ],
+            }}
+          />
+          <SummaryCard
+            title={"Total tax due"}
+            value={`${dashboardData ? dashboardData?.summary?.total_deducted_tax?.toLocaleString() : 0} ${dashboardData?.summary?.currency}`}
+            infoText="view tax breakdown"
+            info={{
+              title: "Taxes",
+              dataSource: dashboardData!?.summary?.taxes?.map((tax, idx) => {
+                return {
+                  key: String(idx),
+                  amount: `${tax.amount?.toLocaleString() || 0}`,
+                  reason: tax.reason,
+                  description: tax.description,
+                }
+              }),
+              columns: [
+                {
+                  title: `Amount (${dashboardData?.summary?.currency})`,
+                  dataIndex: 'amount',
+                  key: 'amount',
+                }, ...taxAndDeductionInfoColumns,
+            ],
+            }}
+          />
           <SummaryCard title={"Current tax bracket"} value={`${dashboardData?.summary?.current_tax_bracket || "N/A"}`}/>
         </div>
         {/* {dashboardData?.summary.total_taxed_income} */}
@@ -208,7 +244,7 @@ const Dashboard = () => {
         </div>
       </div>
     </main>)}
-    </>
+    </div>
   );
 };
 
